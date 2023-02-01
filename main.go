@@ -1,11 +1,17 @@
 package main
 
-var appName = "notificator"
+var appName = "cosmos-notificator"
 
 func main() {
 	config, err := LoadConfig()
 	if err != nil {
-		return
+		panic(err)
 	}
-	notificator := NewNotificator(config)
+	notificator, err := NewNotificator(*config)
+	if err != nil {
+		panic(err)
+	}
+	defer notificator.Close()
+
+	notificator.Start()
 }

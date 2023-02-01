@@ -13,8 +13,6 @@ type Config struct {
 	MailgunDomain     string `json:"mailgun_domain"`
 	MailgunApiKey     string `json:"mailgun_api_key"`
 	MailgunSender     string `json:"mailgun_sender"`
-	SlackWebhookURL   string `json:"slack_webhook_url"`
-	SlackChannel      string `json:"slack_channel"`
 }
 
 func LoadConfig() (*Config, error) {

@@ -1,21 +1,15 @@
 package main
 
 import (
-	"encoding/json"
 	"fmt"
-	"github.com/syndtr/goleveldb/leveldb"
+	// "github.com/syndtr/goleveldb/leveldb"
 	"github.com/syndtr/goleveldb/leveldb/opt"
 )
 
 const EmailAddressKey = "email_address"
-const PublicKeyKey = "public_key"
 
 func getEmailAddressKey(blockchainAddress string) string {
 	return fmt.Sprintf("%s/%s", EmailAddressKey, blockchainAddress)
-}
-
-func getPublicKeyKey(blockchainAddress string) string {
-	return fmt.Sprintf("%s/%s", PublicKeyKey, blockchainAddress)
 }
 
 func (notificator Notificator) GetEmailAddress(blockchainAddress string) string {
@@ -25,7 +19,7 @@ func (notificator Notificator) GetEmailAddress(blockchainAddress string) string 
 		return ""
 	}
 
-	return string(bz), nil
+	return string(bz)
 }
 
 func (notificator Notificator) SetEmailAddress(blockchainAddress string, emailAddress string) error {

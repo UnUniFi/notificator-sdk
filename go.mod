@@ -2,12 +2,16 @@ module github.com/UnUniFi/notificator-sdk
 
 go 1.18
 
-require github.com/mailgun/mailgun-go/v4 v4.8.1
+require (
+	github.com/mailgun/mailgun-go/v4 v4.8.1
+	github.com/syndtr/goleveldb v1.0.1-0.20200815110645-5c35d600f0ca
+)
 
 require (
 	github.com/btcsuite/btcd v0.22.1 // indirect
 	github.com/gogo/protobuf v1.3.2 // indirect
 	github.com/golang/protobuf v1.5.2 // indirect
+	github.com/golang/snappy v0.0.3 // indirect
 	github.com/google/uuid v1.3.0 // indirect
 	github.com/gorilla/websocket v1.5.0 // indirect
 	github.com/mattn/go-colorable v0.1.12 // indirect
