@@ -8,6 +8,7 @@ import (
 )
 
 type Config struct {
+	Port              uint64 `json:"port"`
 	RestHost          string `json:"rest_host"`
 	TendermintRpcHost string `json:"tendermint_rpc_host"`
 	MailgunDomain     string `json:"mailgun_domain"`

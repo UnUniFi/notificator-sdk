@@ -2,15 +2,20 @@ package main
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
+	"io"
+	"net/http"
 	"os"
 	"os/signal"
+	"strconv"
 	"syscall"
 
 	"github.com/tendermint/tendermint/abci/types"
 	tmClient "github.com/tendermint/tendermint/rpc/client/http"
 	tmTypes "github.com/tendermint/tendermint/types"
 
+	"github.com/gorilla/mux"
 	"github.com/syndtr/goleveldb/leveldb"
 	"github.com/syndtr/goleveldb/leveldb/opt"
 )
@@ -44,6 +49,13 @@ func (notificator Notificator) RegisterEventHandler(event string, handler func(a
 }
 
 func (notificator Notificator) Start() {
+	router := mux.NewRouter()
+	router.HandleFunc("/email-address", postEmailAddressHandlerFactory(notificator)).Methods("OPTIONS")
+	router.HandleFunc("/email-address", postEmailAddressHandlerFactory(notificator)).Methods("POST")
+
+	http.Handle("/", router)
+	http.ListenAndServe(fmt.Sprintf(":%d", notificator.Config.Port), nil)
+
 	client, err := tmClient.New(notificator.Config.TendermintRpcHost)
 	if err != nil {
 		fmt.Printf("failed to initialize a client: %s\n", err)
@@ -92,5 +104,64 @@ func (notificator Notificator) Start() {
 		case <-quit:
 			os.Exit(0)
 		}
+	}
+}
+
+type PostEmailAddressRequest struct {
+	BlockchainAddress string `json:"blockchain_address"`
+	EmailAddress      string `json:"email_address"`
+}
+
+func postEmailAddressHandlerFactory(notificator Notificator) func(w http.ResponseWriter, r *http.Request) {
+	return func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Access-Control-Allow-Headers", "*")
+		w.Header().Set("Access-Control-Allow-Origin", "*")
+		w.Header().Set("Access-Control-Allow-Methods", "POST, OPTIONS")
+
+		if r.Method == "OPTIONS" {
+			w.WriteHeader(http.StatusNoContent)
+			return
+		}
+
+		if r.Method != "POST" {
+			w.WriteHeader(http.StatusBadRequest)
+			return
+		}
+
+		if r.Header.Get("Content-Type") != "application/json" {
+			w.WriteHeader(http.StatusBadRequest)
+			return
+		}
+
+		length, err := strconv.Atoi(r.Header.Get("Content-Length"))
+		if err != nil {
+			w.WriteHeader(http.StatusInternalServerError)
+			return
+		}
+
+		body := make([]byte, length)
+		length, err = r.Body.Read(body)
+		if err != nil && err != io.EOF {
+			w.WriteHeader(http.StatusInternalServerError)
+			return
+		}
+
+		var req PostEmailAddressRequest
+		err = json.Unmarshal(body[:length], &req)
+		if err != nil {
+			w.WriteHeader(http.StatusBadRequest)
+			return
+		}
+		fmt.Printf("%v\n", req)
+
+		err = notificator.SetEmailAddress(req.BlockchainAddress, req.EmailAddress)
+		if err != nil {
+			w.WriteHeader(http.StatusInternalServerError)
+			return
+		}
+
+		w.WriteHeader(http.StatusOK)
+		w.Write([]byte{})
+		return
 	}
 }
