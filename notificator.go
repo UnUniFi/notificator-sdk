@@ -21,7 +21,7 @@ type Notificator struct {
 	EventHandlers map[string]func(attributes []types.EventAttribute) error
 }
 
-func NewNotificator(config Config) (*Notificator, error) {
+func NewNotificator(appName string, config Config) (*Notificator, error) {
 	path := os.ExpandEnv(fmt.Sprintf("$HOME/.%s/db", appName))
 	db, err := leveldb.OpenFile(path, &opt.Options{})
 	if err != nil {

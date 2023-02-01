@@ -15,7 +15,7 @@ type Config struct {
 	MailgunSender     string `json:"mailgun_sender"`
 }
 
-func LoadConfig() (*Config, error) {
+func LoadConfig(appName string) (*Config, error) {
 	path := os.ExpandEnv(fmt.Sprintf("$HOME/.%s/config.json", appName))
 	bz, err := ioutil.ReadFile(path)
 	if err != nil {
