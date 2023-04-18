@@ -1,7 +1,7 @@
 {
-    "port": 8080,
-    "rest_host": "",
-    "tendermint_rpc_host": "",
+    "port": 1317,
+    "rest_host": "1317",
+    "tendermint_rpc_host": "tcp://127.0.0.1:26657/",
     "mailgun_domain": "",
     "mailgun_api_key": "",
     "mailgun_sender": ""
