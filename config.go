@@ -1,8 +1,7 @@
-package main
+package notificator
 
 import (
 	"encoding/json"
-	"fmt"
 	"io/ioutil"
 	"os"
 )
@@ -16,8 +15,8 @@ type Config struct {
 	MailgunSender     string `json:"mailgun_sender"`
 }
 
-func LoadConfig(appName string) (*Config, error) {
-	path := os.ExpandEnv(fmt.Sprintf("$HOME/.%s/config.json", appName))
+func LoadConfig(confPath string) (*Config, error) {
+	path := os.ExpandEnv(confPath)
 	bz, err := ioutil.ReadFile(path)
 	if err != nil {
 		return nil, err

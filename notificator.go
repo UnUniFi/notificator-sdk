@@ -1,4 +1,4 @@
-package main
+package notificator
 
 import (
 	"context"
@@ -55,8 +55,10 @@ func (notificator Notificator) Start() {
 
 	http.Handle("/", router)
 	http.ListenAndServe(fmt.Sprintf(":%d", notificator.Config.Port), nil)
+	ctx := context.Background()
+	// github.com/tendermint/tendermint v0.34.20
+	client, err := tmClient.New(notificator.Config.TendermintRpcHost, "websocket")
 
-	client, err := tmClient.New(notificator.Config.TendermintRpcHost)
 	if err != nil {
 		fmt.Printf("failed to initialize a client: %s\n", err)
 		os.Exit(1)
@@ -70,8 +72,10 @@ func (notificator Notificator) Start() {
 	defer client.Stop() //nolint:errcheck
 
 	// Subscribe to all tendermint transactions
-	query := "tm.event = 'Tx'"
-	out, err := client.Subscribe(context.Background(), "test", query, 1000)
+	// health check
+	// query := "tm.event = 'NewBlock'"
+	query := "tm.event='Tx'"
+	out, err := client.Subscribe(ctx, "test", query, 1000)
 	if err != nil {
 		fmt.Printf("failed to subscribe to query: %s\n", err)
 		os.Exit(1)
